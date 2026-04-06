@@ -1,0 +1,133 @@
+{
+  "project_name": "Neon Connect: Offline Strategy Game",
+  "theme": "dark",
+  "archetype": "7 (Electric & Neon)",
+  "global_design_rules": {
+    "philosophy": "A clean, modern, high-contrast mobile web experience. The interface uses pure geometry, sharp neon glows over a matte dark void, and responsive CSS-driven fluid animations to create an immersive, futuristic arcade feel.",
+    "spacing_system": "Mobile-first generous padding. UI elements sit at the edges while the game board remains centered and distinct. Use 'p-6' to 'p-8' for main containers.",
+    "alignment": "Strict symmetry for the game board, centered content for menus. Scores must be balanced perfectly (Player 1 left, Player 2 right).",
+    "accessibility": "Ensure text contrast meets APCA/WCAG AA standards. Use visually distinct colors for Player 1 (Cyan) and Player 2 (Magenta) to accommodate color blindness."
+  },
+  "typography": {
+    "font_families": {
+      "headings": "Outfit, sans-serif",
+      "body": "Inter, sans-serif",
+      "scores_and_numbers": "JetBrains Mono, monospace"
+    },
+    "hierarchy": {
+      "h1": "text-4xl sm:text-5xl font-black tracking-tighter text-white",
+      "h2": "text-2xl sm:text-3xl font-bold tracking-tight text-white/90",
+      "h3": "text-xl font-semibold text-white/80",
+      "body": "text-base font-normal text-slate-300",
+      "small_labels": "text-xs font-bold uppercase tracking-[0.2em] text-slate-400",
+      "scores": "text-3xl sm:text-4xl font-black tracking-tight"
+    }
+  },
+  "colors": {
+    "background": {
+      "main": "#05050A",
+      "surface": "#0A0A12",
+      "overlay": "rgba(5, 5, 10, 0.8)"
+    },
+    "text": {
+      "primary": "#FFFFFF",
+      "secondary": "#94A3B8",
+      "muted": "#475569"
+    },
+    "players": {
+      "player_1": {
+        "name": "Neon Cyan",
+        "hex": "#00F0FF",
+        "glow": "0 0 12px rgba(0, 240, 255, 0.6)",
+        "fill": "rgba(0, 240, 255, 0.15)"
+      },
+      "player_2": {
+        "name": "Laser Magenta",
+        "hex": "#FF0055",
+        "glow": "0 0 12px rgba(255, 0, 85, 0.6)",
+        "fill": "rgba(255, 0, 85, 0.15)"
+      }
+    },
+    "board": {
+      "dot_unclaimed": "#1E1E2E",
+      "dot_glow": "0 0 4px rgba(255,255,255,0.1)",
+      "line_unclaimed": "rgba(255, 255, 255, 0.05)",
+      "line_hover": "rgba(255, 255, 255, 0.2)"
+    }
+  },
+  "components": {
+    "layout": {
+      "container": "min-h-screen bg-[#05050A] text-white flex flex-col items-center justify-center p-4 sm:p-6 select-none",
+      "board_wrapper": "relative aspect-square w-full max-w-[400px] mx-auto bg-[#0A0A12] rounded-xl border border-white/5 shadow-2xl p-4 sm:p-8 flex items-center justify-center"
+    },
+    "game_board": {
+      "description": "The interactive NxN grid (default 5x5). Dots are fixed points, lines act as interactive bridges between them, and boxes are the spaces captured.",
+      "dot": "w-3 h-3 sm:w-4 sm:h-4 bg-[#1E1E2E] rounded-full z-20 shadow-[0_0_4px_rgba(255,255,255,0.1)] transition-colors duration-300",
+      "horizontal_line": "absolute h-3 sm:h-4 -translate-y-1/2 cursor-pointer z-10 rounded-full transition-all duration-200",
+      "vertical_line": "absolute w-3 sm:w-4 -translate-x-1/2 cursor-pointer z-10 rounded-full transition-all duration-200",
+      "box_fill": "absolute z-0 flex items-center justify-center rounded-sm transition-all duration-300 backdrop-blur-sm"
+    },
+    "buttons": {
+      "primary": "relative overflow-hidden rounded-full bg-white/5 px-8 py-4 font-bold tracking-wide text-white border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all duration-300 shadow-sm active:scale-95",
+      "neon_cyan": "border-[#00F0FF]/50 text-[#00F0FF] shadow-[0_0_15px_rgba(0,240,255,0.2)] hover:shadow-[0_0_25px_rgba(0,240,255,0.4)] hover:bg-[#00F0FF]/10",
+      "neon_magenta": "border-[#FF0055]/50 text-[#FF0055] shadow-[0_0_15px_rgba(255,0,85,0.2)] hover:shadow-[0_0_25px_rgba(255,0,85,0.4)] hover:bg-[#FF0055]/10",
+      "icon_button": "p-3 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 text-white transition-all active:scale-95"
+    },
+    "hud": {
+      "score_panel": "flex justify-between items-center w-full max-w-[400px] mb-8 bg-[#0A0A12]/50 backdrop-blur-md rounded-2xl p-4 border border-white/5",
+      "active_player_indicator": "absolute -inset-1 rounded-xl opacity-50 blur-md transition-all duration-500",
+      "score_text": "font-mono text-4xl font-black"
+    },
+    "dialogs": {
+      "overlay": "fixed inset-0 bg-[#05050A]/80 backdrop-blur-md z-40",
+      "content": "fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-sm bg-[#0A0A12] border border-white/10 p-6 rounded-2xl shadow-2xl z-50 flex flex-col gap-6"
+    }
+  },
+  "motion_and_interactions": {
+    "line_draw": {
+      "trigger": "onClick",
+      "animation": "Framer Motion layout transition or animate width/height from 0 to 100%. Color shifts immediately to active player's hex with glow."
+    },
+    "box_capture": {
+      "trigger": "on completing 4th line",
+      "animation": "Scale from 0.8 to 1, opacity from 0 to 1 with spring physics. Text/Icon (if displaying player initial) pulses once."
+    },
+    "turn_switch": {
+      "trigger": "after a valid move that doesn't capture a box",
+      "animation": "Active player's score panel glows brightly (pulse) while the inactive player's panel dims to 50% opacity."
+    },
+    "menu_transitions": {
+      "animation": "Fade in and slide up slightly (y: 20 -> 0, opacity: 0 -> 1) staggered for menu items."
+    }
+  },
+  "sound_effects_strategy": {
+    "implementation": "Use 'use-sound' library. Requires 4 basic synthetic SFX.",
+    "effects": {
+      "draw_line": "Short, subtle electronic 'click' or 'blip'.",
+      "capture_box": "Satisfying synth 'chord' or 'chime' (different pitch for P1 vs P2).",
+      "game_over": "Retro arcade 'level clear' arpeggio.",
+      "ui_click": "Very soft high-passed tap for buttons."
+    }
+  },
+  "instructions_to_main_agent": [
+    "1. Initialize a React mobile-first application using Vite/Next.js + Tailwind CSS + Framer Motion.",
+    "2. Set up Shadcn UI for standard components like Dialog (for Game Over and Settings) and Slider (for Grid Size). Customize them heavily to match the dark neon theme (remove white backgrounds, add transparent dark borders).",
+    "3. Build the core Game Engine: State should track 'boardSize' (NxN dots, meaning N-1xN-1 boxes). Track 'lines' (horizontal and vertical arrays) and 'boxes' (2D array mapping to player 1/2).",
+    "4. Construct the Game Board Grid UI: Use relative/absolute positioning based on percentages, or CSS Grid. Dots should be fixed. Lines should be clickable areas sitting between dots. Keep touch targets large enough for mobile (`w-4` or `h-4` with expanded invisible padding for taps).",
+    "5. Integrate Sound: Add a global context or hook for the 4 required sound effects, tied to the Settings 'Mute' state.",
+    "6. AI Opponent (Easy): If 'Vs Computer' is selected, the AI should trigger its move 500-800ms after the player's turn. Easy AI simply picks a random available uncompleted line.",
+    "7. Implement Turn System: Player captures a box -> gets an extra turn. Game over when all lines are filled.",
+    "8. Add 'data-testid' attributes to ALL interactive elements (lines, settings button, mute toggle, game mode selectors) for testing."
+  ],
+  "testing_attributes": {
+    "rules": "All interactive elements must have a data-testid. Examples:",
+    "examples": [
+      "data-testid='btn-local-multiplayer'",
+      "data-testid='btn-vs-computer'",
+      "data-testid='grid-size-slider'",
+      "data-testid='toggle-mute'",
+      "data-testid='line-h-0-1' (horizontal line row 0, col 1)",
+      "data-testid='line-v-1-0' (vertical line row 1, col 0)"
+    ]
+  }
+}
