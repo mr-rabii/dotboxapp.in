@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, StyleSheet, Pressable } from 'react-native';
+import { View, Text, StyleSheet, Pressable, BackHandler } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import Animated, {
@@ -16,6 +16,8 @@ import { getAIMove, Difficulty } from '@/src/engine/aiPlayer';
 import { playLineSound, playCaptureSound, playGameOverSound, playUISound } from '@/src/utils/sounds';
 import GameBoard from '@/src/components/GameBoard';
 import ScorePanel from '@/src/components/ScorePanel';
+import ExitDialog from '@/src/components/ExitDialog';
+import Tutorial, { isTutorialDone } from '@/src/components/Tutorial';
 
 export default function GameScreen() {
   const router = useRouter();
@@ -23,6 +25,7 @@ export default function GameScreen() {
     mode: string;
     gridSize: string;
     difficulty: string;
+    shapeMode: string;
   }>();
 
   const mode = (params.mode || 'local') as 'local' | 'ai';
@@ -36,6 +39,28 @@ export default function GameScreen() {
   const [gameState, setGameState] = useState<GameState>(() => createGameState(gridSize));
   const [isThinking, setIsThinking] = useState(false);
   const [navigating, setNavigating] = useState(false);
+  const [showExitDialog, setShowExitDialog] = useState(false);
+  const [showTutorial, setShowTutorial] = useState(false);
+
+  // Check tutorial on mount
+  useEffect(() => {
+    isTutorialDone().then((done) => {
+      if (!done) setShowTutorial(true);
+    });
+  }, []);
+
+  // Android back button handler
+  useEffect(() => {
+    const handler = BackHandler.addEventListener('hardwareBackPress', () => {
+      if (showTutorial) return true;
+      if (!gameState.gameOver && !navigating) {
+        setShowExitDialog(true);
+        return true;
+      }
+      return false;
+    });
+    return () => handler.remove();
+  }, [gameState.gameOver, navigating, showTutorial]);
 
   // Thinking dots animation
   const thinkDot = useSharedValue(0);
@@ -56,9 +81,8 @@ export default function GameScreen() {
     opacity: 0.4 + thinkDot.value * 0.6,
   }));
 
-  // Handle human line press
   const handleLinePress = useCallback((type: LineType, row: number, col: number) => {
-    if (gameState.gameOver || navigating) return;
+    if (gameState.gameOver || navigating || showTutorial) return;
     if (isAI && gameState.currentPlayer === 2) return;
 
     const newState = makeMove(gameState, { type, row, col });
@@ -71,11 +95,11 @@ export default function GameScreen() {
     }
 
     setGameState(newState);
-  }, [gameState, isAI, navigating]);
+  }, [gameState, isAI, navigating, showTutorial]);
 
-  // AI move logic
+  // AI move
   useEffect(() => {
-    if (!isAI || gameState.currentPlayer !== 2 || gameState.gameOver || navigating) {
+    if (!isAI || gameState.currentPlayer !== 2 || gameState.gameOver || navigating || showTutorial) {
       setIsThinking(false);
       return;
     }
@@ -87,11 +111,8 @@ export default function GameScreen() {
       if (move) {
         const newState = makeMove(gameState, move);
         if (newState) {
-          if (newState.newBoxes.length > 0) {
-            playCaptureSound();
-          } else {
-            playLineSound();
-          }
+          if (newState.newBoxes.length > 0) playCaptureSound();
+          else playLineSound();
           setGameState(newState);
         }
       }
@@ -99,9 +120,9 @@ export default function GameScreen() {
     }, delay);
 
     return () => clearTimeout(timer);
-  }, [gameState, isAI, difficulty, navigating]);
+  }, [gameState, isAI, difficulty, navigating, showTutorial]);
 
-  // Navigate to game over
+  // Game over navigation
   useEffect(() => {
     if (gameState.gameOver && !navigating) {
       setNavigating(true);
@@ -138,8 +159,11 @@ export default function GameScreen() {
         <Pressable
           testID="btn-back"
           onPress={() => {
-            playUISound();
-            router.back();
+            if (!gameState.gameOver && !navigating) {
+              setShowExitDialog(true);
+            } else {
+              router.back();
+            }
           }}
           style={styles.backBtn}
         >
@@ -170,7 +194,7 @@ export default function GameScreen() {
         <GameBoard
           gameState={gameState}
           onLinePress={handleLinePress}
-          disabled={gameState.gameOver || (isAI && gameState.currentPlayer === 2)}
+          disabled={gameState.gameOver || (isAI && gameState.currentPlayer === 2) || showTutorial}
         />
       </View>
 
@@ -192,6 +216,24 @@ export default function GameScreen() {
           </View>
         )}
       </View>
+
+      {/* Tutorial Overlay */}
+      {showTutorial && (
+        <Tutorial onComplete={() => setShowTutorial(false)} />
+      )}
+
+      {/* Exit Dialog */}
+      <ExitDialog
+        visible={showExitDialog}
+        onExit={() => {
+          setShowExitDialog(false);
+          playUISound();
+          router.back();
+        }}
+        onContinue={() => {
+          setShowExitDialog(false);
+        }}
+      />
     </SafeAreaView>
   );
 }

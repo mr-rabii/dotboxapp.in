@@ -42,7 +42,6 @@ export default function GameOverScreen() {
   const winnerName = winner === 0 ? "IT'S A TIE!" : winner === 1 ? `${player1} WINS!` : `${player2} WINS!`;
   const winnerColor = winner === 0 ? COLORS.accent : getPlayerColor(winner as Player);
 
-  // Entrance animations
   const trophyOp = useSharedValue(0);
   const trophyScale = useSharedValue(0.3);
   const nameOp = useSharedValue(0);
@@ -60,7 +59,6 @@ export default function GameOverScreen() {
     scoreOp.value = withDelay(700, withTiming(1, { duration: 500 }));
     btn1Op.value = withDelay(1000, withTiming(1, { duration: 400 }));
     btn2Op.value = withDelay(1150, withTiming(1, { duration: 400 }));
-
     glowPulse.value = withRepeat(
       withSequence(
         withTiming(1, { duration: 1500 }),
@@ -86,7 +84,6 @@ export default function GameOverScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Background glow effect */}
       <Animated.View
         style={[
           styles.bgGlow,
@@ -96,7 +93,6 @@ export default function GameOverScreen() {
       />
 
       <View style={styles.content}>
-        {/* Trophy / Result */}
         <Animated.View style={[styles.trophyContainer, trophyStyle]}>
           <Text style={styles.trophyEmoji}>{winner === 0 ? '🤝' : '🏆'}</Text>
         </Animated.View>
@@ -105,7 +101,6 @@ export default function GameOverScreen() {
           {winnerName}
         </Animated.Text>
 
-        {/* Score Display */}
         <Animated.View style={[styles.scoreCard, scoreStyle]}>
           <View style={styles.scoreRow}>
             <View style={styles.scorePlayer}>
@@ -122,7 +117,6 @@ export default function GameOverScreen() {
           </View>
         </Animated.View>
 
-        {/* Action Buttons */}
         <View style={styles.buttonsContainer}>
           <Animated.View style={btn1Style}>
             <MenuButton
@@ -152,6 +146,8 @@ export default function GameOverScreen() {
           </Animated.View>
         </View>
       </View>
+
+      <Text style={styles.footerDev}>developed by Zero Dice Technologies</Text>
     </SafeAreaView>
   );
 }
@@ -230,5 +226,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 14,
     marginTop: 16,
+  },
+  footerDev: {
+    textAlign: 'center',
+    fontSize: 10,
+    color: COLORS.textMuted,
+    letterSpacing: 0.5,
+    opacity: 0.6,
+    paddingBottom: 16,
   },
 });
